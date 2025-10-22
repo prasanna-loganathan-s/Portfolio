@@ -16,10 +16,25 @@ type ToolCall =
   | { type: "tool"; name: "toggle_theme"; args: { mode: "light" | "dark" | "system" } };
 
 function summarizeContext() {
-  const proj = PROJECTS_CARD.map(p => ({ name: p.name, summary: p.description, tags: p.technologies ?? [] }));
-  const skillGroups = SKILLS_DATA.flatMap(group => group.skills.map(s => (typeof s === "string" ? s : s.name ?? "")));
-  const exp = EXPERIENCE.map(e => ({ role: e.title ?? e.role ?? "", company: e.organisation?.name ?? "", period: e.period ?? e.date ?? "" }));
+  const proj = PROJECTS_CARD.map(p => ({
+    name: p.name,
+    summary: p.description,
+    tags: p.technologies ?? [],
+  }));
+
+  const skillGroups = SKILLS_DATA.flatMap(group =>
+    group.skills.map(s => (typeof s === "string" ? s : s.name ?? ""))
+  );
+
+  // ✅ Fixed Experience mapping to use proper field names
+  const exp = EXPERIENCE.map(e => ({
+    role: e.title ?? "",
+    company: e.organization?.name ?? e.organisation?.name ?? "",
+    period: e.period ?? e.date ?? "",
+  }));
+
   const res = { summary: "", highlights: [] as string[] };
+
   return { proj, skillGroups, exp, res };
 }
 
@@ -36,6 +51,7 @@ Never include extra keys. Never include markdown, only JSON.`;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
   // 20 requests/minute per IP+UA
   const limiter = rateLimiterApi({ uniqueTokenPerInterval: 100, interval: 60_000, getUserId });
   try {
@@ -44,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(429).json({ error: "Too many requests" });
   }
 
-  const { messages } = req.body as { messages: { role: "user"|"assistant"; content: string }[] };
+  const { messages } = req.body as { messages: { role: "user" | "assistant"; content: string }[] };
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "Invalid request" });
   }
@@ -65,6 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     exp: full.exp.slice(0, 5),
     res: full.res,
   };
+
   const input = [
     { role: "user", content: SYSTEM },
     { role: "user", content: `Context: ${JSON.stringify(context)}` },
@@ -75,11 +92,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Resolve a supported model at runtime
     const model = genAI.getGenerativeModel({ model: pinnedModelId });
-    const result = await model.generateContent({ contents: input.map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })) });
+    const result = await model.generateContent({
+      contents: input.map(m => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+    });
+
     const text = result.response.text();
     let parsed: ToolCall | null = null;
-    try { parsed = JSON.parse(text) as ToolCall; } catch { parsed = { type: "text", text }; }
+
+    try {
+      parsed = JSON.parse(text) as ToolCall;
+    } catch {
+      parsed = { type: "text", text };
+    }
+
     if (!parsed || (parsed as any).type === undefined) parsed = { type: "text", text };
+
     return res.status(200).json(parsed);
   } catch (err: any) {
     console.error("assistant error", err?.message);
