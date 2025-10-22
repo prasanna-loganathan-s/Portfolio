@@ -26,10 +26,10 @@ function summarizeContext() {
     group.skills.map(s => (typeof s === "string" ? s : s.name ?? ""))
   );
 
-  // ✅ Fixed Experience mapping to use proper field names
+  // ✅ Fixed Experience mapping — only using `organisation`
   const exp = EXPERIENCE.map(e => ({
-    role: e.title ?? "",
-    company: e.organization?.name ?? e.organisation?.name ?? "",
+    role: e.title ?? e.role ?? "",
+    company: e.organisation?.name ?? "",
     period: e.period ?? e.date ?? "",
   }));
 
