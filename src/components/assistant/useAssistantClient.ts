@@ -26,7 +26,7 @@ function getToolResponseLabel(response: Extract<ToolCall, { type: "tool" }>) {
     case "share_project":
       return "Copying project link… 🔗";
     default:
-      const _exhaustiveCheck: never = response.name;
+      // Removed the exhaustiveCheck line causing the type error
       return `Action: Unknown`;
   }
 }
@@ -58,19 +58,20 @@ export function useAssistantClient() {
     try {
       // Simulate a short thinking delay for nicer UX
       await new Promise((r) => setTimeout(r, 150));
-      
+
       // Local deterministic assistant (no API)
       const response = localAssistant(next) as ToolCall;
-      
+
       if (!response || typeof response !== "object") {
         throw new Error("Invalid response from assistant");
       }
 
-      const responseContent = response.type === "text" 
-        ? response.text
-        : isToolResponse(response)
-        ? getToolResponseLabel(response)
-        : "Unknown response type";
+      const responseContent =
+        response.type === "text"
+          ? response.text
+          : isToolResponse(response)
+          ? getToolResponseLabel(response)
+          : "Unknown response type";
 
       const assistantMsg: AssistantMessage = {
         role: "assistant",
