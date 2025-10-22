@@ -31,9 +31,11 @@ export function useAssistantClient() {
       const data = localAssistant(next) as ToolCall;
       if (data.type === "text") {
         const assistantMsg: AssistantMessage = { role: "assistant", content: data.text };
-        const msgs: ChatMessage[] = [...next, assistantMsg];
-        setMessages(msgs);
-        persist(msgs);
+        setMessages(() => {
+          const arr: ChatMessage[] = [...next, assistantMsg];
+          persist(arr);
+          return arr;
+        });
       } else {
         const label =
           data.name === "open_contact" ? "Opening contact form… 📬" :
@@ -46,14 +48,20 @@ export function useAssistantClient() {
           data.name === "share_project" ? "Copying project link… 🔗" :
           `Action: ${data.name}`;
         const assistantMsg: AssistantMessage = { role: "assistant", content: label };
-        const msgs: ChatMessage[] = [...next, assistantMsg];
-        setMessages(msgs);
-        persist(msgs);
+        setMessages(() => {
+          const arr: ChatMessage[] = [...next, assistantMsg];
+          persist(arr);
+          return arr;
+        });
       }
       return data;
     } catch (e: any) {
       const assistantMsg: AssistantMessage = { role: "assistant", content: "Sorry, something went wrong." };
-      setMessages([...next, assistantMsg]);
+      setMessages(() => {
+        const arr: ChatMessage[] = [...next, assistantMsg];
+        persist(arr);
+        return arr;
+      });
       return { type: "text", text: "Sorry, something went wrong." } as ToolCall;
     } finally {
       setLoading(false);
