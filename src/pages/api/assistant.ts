@@ -26,11 +26,11 @@ function summarizeContext() {
     group.skills.map(s => (typeof s === "string" ? s : s.name ?? ""))
   );
 
-  // ✅ Final fix: only use valid fields (`title`, `organisation`, `period`, `date`)
+  // ✅ Final fix — use only properties that actually exist in EXPERIENCE
   const exp = EXPERIENCE.map(e => ({
     role: e.title ?? "",
     company: e.organisation?.name ?? "",
-    period: e.period ?? e.date ?? "",
+    period: e.date ?? "", // only 'date' exists
   }));
 
   const res = { summary: "", highlights: [] as string[] };
