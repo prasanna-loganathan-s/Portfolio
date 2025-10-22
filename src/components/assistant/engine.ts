@@ -230,7 +230,7 @@ function answerResumeLink(text: string): string | null {
 function answerExperience(text: string): string | null {
   const t = toSimple(text);
   if (!/(experience|work|company|role|job)/.test(t)) return null;
-  const items = EXPERIENCE.slice(0, 3).map(e => `${e.title} @ ${e.organisation?.name ?? e.company ?? ""}`);
+  const items = EXPERIENCE.slice(0, 3).map(e => `${e.title} @ ${e.organisation?.name ?? ""}`);
   return `Recent experience: ${items.join("; ")}. Ask for more details or open the resume.`;
 }
 
