@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://prasanna-loganathan-s.tech/sitemap.xml
