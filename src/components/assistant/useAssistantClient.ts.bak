@@ -1,0 +1,110 @@
+"use client";
+import { useState } from "react";
+import type { ChatMessage, ToolCall, AssistantMessage, UserMessage } from "./types";
+import { localAssistant, greetMessage } from "./engine";
+
+export function useAssistantClient() {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window !== "undefined") {
+      const raw = window.localStorage.getItem("assistant_chat_v1");
+      if (raw) return JSON.parse(raw) as ChatMessage[];
+    }
+    const m: AssistantMessage = { role: "assistant", content: greetMessage() };
+    return [m];
+  });
+  const [loading, setLoading] = useState(false);
+
+  const persist = (msgs: ChatMessage[]) => {
+    try { window.localStorage.setItem("assistant_chat_v1", JSON.stringify(msgs)); } catch {}
+  };
+
+  const send = async (content: string) => {
+    const userMsg: UserMessage = { role: "user", content };
+    const next: ChatMessage[] = [...messages, userMsg];
+    setMessages(next);
+    persist(next);
+    setLoading(true);
+    
+    try {
+      // Simulate a short thinking delay for nicer UX
+      await new Promise((r) => setTimeout(r, 150));
+      
+      // Local deterministic assistant (no API)
+      const response = localAssistant(next) as ToolCall;
+      
+      if (!response || typeof response !== 'object' || !('type' in response)) {
+        throw new Error('Invalid response from assistant');
+      }
+
+      let responseContent = "";
+      
+      if (response.type === "text") {
+        responseContent = response.text;
+      } else if (response.type === "tool" && 'name' in response) {
+        switch (response.name) {
+          case "open_contact":
+            responseContent = "Opening contact form… 📬";
+            break;
+          case "navigate":
+            responseContent = `Navigating to ${response.args.page}… 🧭`;
+            break;
+          case "scroll_to":
+            responseContent = "Scrolling to section… 🧷";
+            break;
+          case "filter_projects":
+            responseContent = `Filtering projects by ${response.args.tag}… 🏷️`;
+            break;
+          case "toggle_theme":
+            responseContent = "Switching theme… 🌓";
+            break;
+          case "open_resume":
+            responseContent = "Opening resume PDF… 📄";
+            break;
+          case "copy_email":
+            responseContent = "Copying email to clipboard… 📋";
+            break;
+          case "share_project":
+            responseContent = "Copying project link… 🔗";
+            break;
+          default:
+            responseContent = `Action: ${String(response.name)}`;
+        }
+      } else {
+        throw new Error('Invalid response type from assistant');
+      }
+
+      const assistantMsg: AssistantMessage = { 
+        role: "assistant", 
+        content: responseContent 
+      };
+
+      setMessages(() => {
+        const arr: ChatMessage[] = [...next, assistantMsg];
+        persist(arr);
+        return arr;
+      });
+
+      return response;
+        const assistantMsg: AssistantMessage = { role: "assistant", content: label };
+        setMessages(() => {
+          const arr: ChatMessage[] = [...next, assistantMsg];
+          persist(arr);
+          return arr;
+        });
+      }
+      return data;
+    } catch (e: any) {
+      const assistantMsg: AssistantMessage = { role: "assistant", content: "Sorry, something went wrong." };
+      setMessages(() => {
+        const arr: ChatMessage[] = [...next, assistantMsg];
+        persist(arr);
+        return arr;
+      });
+      return { type: "text", text: "Sorry, something went wrong." } as ToolCall;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { messages, send, loading, setMessages };
+}
