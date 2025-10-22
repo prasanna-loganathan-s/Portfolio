@@ -18,7 +18,7 @@ type ToolCall =
 function summarizeContext() {
   const proj = PROJECTS_CARD.map(p => ({ name: p.name, summary: p.description, tags: p.technologies ?? [] }));
   const skillGroups = SKILLS_DATA.flatMap(group => group.skills.map(s => (typeof s === "string" ? s : s.name ?? "")));
-  const exp = EXPERIENCE.map(e => ({ role: e.title ?? e.role ?? "", company: e.organisation?.name ?? e.company ?? "", period: e.period ?? e.date ?? "" }));
+  const exp = EXPERIENCE.map(e => ({ role: e.title ?? e.role ?? "", company: e.organisation?.name ?? "", period: e.period ?? e.date ?? "" }));
   const res = { summary: "", highlights: [] as string[] };
   return { proj, skillGroups, exp, res };
 }
