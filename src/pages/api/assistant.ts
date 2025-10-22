@@ -26,9 +26,9 @@ function summarizeContext() {
     group.skills.map(s => (typeof s === "string" ? s : s.name ?? ""))
   );
 
-  // ✅ Fixed Experience mapping — only using `organisation`
+  // ✅ Final fix: only use valid fields (`title`, `organisation`, `period`, `date`)
   const exp = EXPERIENCE.map(e => ({
-    role: e.title ?? e.role ?? "",
+    role: e.title ?? "",
     company: e.organisation?.name ?? "",
     period: e.period ?? e.date ?? "",
   }));
@@ -70,10 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // Option A: Pin to a free-friendly model to avoid preview/pro quota issues
   const pinnedModelId = "gemini-1.5-flash-8b";
 
-  // Compact context to minimize token usage
   const full = summarizeContext();
   const context = {
     proj: full.proj.slice(0, 6),
@@ -90,7 +88,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   ];
 
   try {
-    // Resolve a supported model at runtime
     const model = genAI.getGenerativeModel({ model: pinnedModelId });
     const result = await model.generateContent({
       contents: input.map(m => ({
