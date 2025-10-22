@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import type { ChatMessage, ToolCall } from "./types";
+import type { ChatMessage, ToolCall, AssistantMessage, UserMessage } from "./types";
 import { localAssistant, greetMessage } from "./engine";
 
 export function useAssistantClient() {
@@ -9,7 +9,7 @@ export function useAssistantClient() {
       const raw = window.localStorage.getItem("assistant_chat_v1");
       if (raw) return JSON.parse(raw) as ChatMessage[];
     }
-    return [{ role: "assistant", content: greetMessage() }];
+    return [{ role: "assistant", content: greetMessage() } as AssistantMessage];
   });
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +18,7 @@ export function useAssistantClient() {
   };
 
   const send = async (content: string) => {
-    const next: ChatMessage[] = [...messages, { role: "user", content }];
+    const next: ChatMessage[] = [...messages, { role: "user", content } as UserMessage];
     setMessages(next);
     persist(next);
     setLoading(true);
@@ -28,7 +28,7 @@ export function useAssistantClient() {
       // Local deterministic assistant (no API)
       const data = localAssistant(next) as ToolCall;
       if (data.type === "text") {
-        const msgs = [...next, { role: "assistant", content: data.text }];
+        const msgs: ChatMessage[] = [...next, { role: "assistant", content: data.text } as AssistantMessage];
         setMessages(msgs);
         persist(msgs);
       } else {
@@ -42,13 +42,13 @@ export function useAssistantClient() {
           data.name === "copy_email" ? "Copying email to clipboard… 📋" :
           data.name === "share_project" ? "Copying project link… 🔗" :
           `Action: ${data.name}`;
-        const msgs = [...next, { role: "assistant", content: label }];
+        const msgs: ChatMessage[] = [...next, { role: "assistant", content: label } as AssistantMessage];
         setMessages(msgs);
         persist(msgs);
       }
       return data;
     } catch (e: any) {
-      setMessages([...next, { role: "assistant", content: "Sorry, something went wrong." }]);
+      setMessages([...next, { role: "assistant", content: "Sorry, something went wrong." } as AssistantMessage]);
       return { type: "text", text: "Sorry, something went wrong." } as ToolCall;
     } finally {
       setLoading(false);
