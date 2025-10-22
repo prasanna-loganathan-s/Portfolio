@@ -1,0 +1,217 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --border: 240 5.9% 90%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Updated Accent Colors */
+    --accent-light: 183 65% 45%; /* Lighter shade for hover */
+    --accent: 183 65% 35%;
+    --accent-dark: 183 65% 25%; /* Darker shade for active/focus */
+    --accent-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Updated Accent Colors */
+    --accent-light: 183 63% 50%; /* Lighter shade for hover */
+    --accent: 183 63% 40%;
+    --accent-dark: 183 63% 30%; /* Darker shade for active/focus */
+    --accent-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground;
+
+    /* Improved typography for readability */
+    font-feature-settings: "liga" 1, "calt" 1;
+    letter-spacing: 0.01em;
+    line-height: 1.6;
+
+    /* Custom cursor for light theme applied globally */
+    cursor: url("/icons8-select-cursor-18-light.png"), auto;
+  }
+
+  /* Dark theme body cursor */
+  .dark body {
+    cursor: url("/icons8-select-cursor-18-dark.png"), auto;
+  }
+
+  .div {
+    @apply min-h-screen bg-background text-foreground;
+
+    /* Custom cursor for light theme applied globally */
+    cursor: url("/icons8-select-cursor-18-light.png"), auto;
+  }
+
+  /* Dark theme body cursor */
+  .dark .div {
+    cursor: url("/icons8-select-cursor-18-dark.png"), auto;
+  }
+  /* Cursor styles for light theme */
+  a:hover,
+  button:hover {
+    cursor: url("/icons8-hand-cursor-18-light.png"), pointer;
+  }
+
+  button {
+    cursor: url("/icons8-hand-cursor-18-light.png"), pointer;
+  }
+
+  input,
+  textarea {
+    cursor: url("/icons8-text-cursor-19-light.png"), text;
+  }
+
+  /* Cursor styles for dark theme */
+  .dark a:hover,
+  .dark button:hover {
+    cursor: url("/icons8-hand-cursor-18-dark.png"), pointer;
+  }
+
+  .dark button {
+    cursor: url("/icons8-hand-cursor-18-dark.png"), pointer;
+  }
+
+  .dark input,
+  .dark textarea {
+    cursor: url("/icons8-text-cursor-19-dark.png"), text;
+  }
+
+  /* If you want to remove the default cursor */
+  .no-cursor {
+    cursor: none;
+  }
+
+  /* Custom loading animation for AI chat */
+  @keyframes loading {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Custom styles for markdown in chat messages */
+  .chat-markdown {
+    @apply text-inherit;
+  }
+
+  .chat-markdown h1,
+  .chat-markdown h2,
+  .chat-markdown h3,
+  .chat-markdown h4,
+  .chat-markdown h5,
+  .chat-markdown h6 {
+    @apply mb-2 mt-3 font-semibold text-inherit first:mt-0;
+  }
+
+  .chat-markdown h1 {
+    @apply text-base;
+  }
+
+  .chat-markdown h2 {
+    @apply text-sm;
+  }
+
+  .chat-markdown h3 {
+    @apply text-sm;
+  }
+
+  .chat-markdown p {
+    @apply mb-2 text-inherit last:mb-0;
+  }
+
+  .chat-markdown ul,
+  .chat-markdown ol {
+    @apply mb-2 pl-4 text-inherit;
+  }
+
+  .chat-markdown li {
+    @apply mb-1 text-inherit;
+  }
+
+  .chat-markdown strong {
+    @apply font-semibold text-inherit;
+  }
+
+  .chat-markdown em {
+    @apply italic text-inherit;
+  }
+
+  .chat-markdown code {
+    @apply rounded bg-muted/50 px-1 py-0.5 font-mono text-xs text-inherit;
+  }
+
+  .chat-markdown pre {
+    @apply mb-2 overflow-x-auto rounded bg-muted/50 p-2 font-mono text-xs text-inherit;
+  }
+
+  .chat-markdown pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .chat-markdown blockquote {
+    @apply mb-2 border-l-2 border-accent pl-3 text-inherit opacity-80;
+  }
+
+  .chat-markdown a {
+    @apply text-accent underline hover:text-accent/80;
+  }
+
+  .chat-markdown hr {
+    @apply my-3 border-border;
+  }
+
+  /* Override prose styles for chat context */
+  .chat-markdown.prose {
+    @apply max-w-none;
+  }
+
+  .chat-markdown.prose h1,
+  .chat-markdown.prose h2,
+  .chat-markdown.prose h3,
+  .chat-markdown.prose h4 {
+    @apply text-inherit;
+  }
+
+  .chat-markdown.prose p,
+  .chat-markdown.prose li,
+  .chat-markdown.prose blockquote {
+    @apply text-inherit;
+  }
+}
